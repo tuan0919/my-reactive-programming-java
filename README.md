@@ -178,16 +178,43 @@
 
   Lưu ý là: **Reactive Programming** không phù hợp với các dự án nhỏ.
 
-  Reactive làm chúng ta liên tưởng đến **Collection Stream**.
+  Để sử dụng Reactive, chúng ta cần có hiểu biết về **Collection Stream**.
 
-  Java Stream Refresh:
+  > **Java Stream Refresh**:
+  > - Là một chuỗi các data.
+  > - Chúng ta tập trung vào tính toán.
+  > - Không quan tâm đến cách mà dữ liệu được lưu trữ trong một stream.
+  > - Internal Iteration, chúng ta không chủ động thực hiện loop qua data.
+  > - Một số operator phổ biến trong Stream: `map`, `filter`, `flatMap`, `findFirst`, ...
 
-  - Là một chuỗi các data.
-  - Chúng ta tập trung vào tính toán.
-  - Không quan tâm đến cách mà dữ liệu được lưu trữ trong một stream.
-  - Internal Iteration, chúng ta không chủ động thực hiện loop qua data.
-  - Một số operator phổ biến trong Stream: `map`, `filter`, `flatMap`, `findFirst`, ...
+  ### Ý tưởng nền tảng:
+  Có thể nói, Reactive chính là sự kết hợp của hai Design Pattern nổi tiếng khác là _Iterator Pattern_ và _Observer Pattern_:
+  - Với Iterator Pattern ta có đoạn code như sau: 
+    ```java
+      myList.forEach(element -> System.out.println(element))
+    ```
+  - Với Observer Pattern ta có đoạn code như sau:
+    ```java
+      eventChannel.addObserver(event -> System.out.println(event))
+    ```
+  - Điểm khác biệt ở đây chỉ là **bên nào control** việc push data? Đối với *Iterator* thì đó là chính chúng ta, còn đối với *Observer* thì đó là Event hay Publisher.
+  - Reactive là một "nỗ lực" để kết hợp hai hàm trên, một thứ gì đó tương tự thế này:
+    ```java
+      eventChannel
+        .forEach(event -> event != null)
+        .addOserver(event -> System.out.println(event))
+    ```
 
+  ### Khái niệm:
+  Có thể giới thiệu ngắn ngọn Reactive = Asynchronous + Non-Blocking I/O (NIO), có nghĩa là một chương trình được gọi là Reactive nó sẽ đảm bảo được 2 yếu tố là Asynchronous (xử lý bất đồng bộ) và Non-Blocking I/O.
+
+  Bằng cách viết những đoạn mã asynchronous và non-blocking, chương trình sẽ cho phép switch qua các tách vụ khác mà đang sử dụng cùng một I/O resource, và có thể quay lại sử lý tiếp khi tác vụ đó hoàn thành. Do đó với reactive programing chương trình có thể sử lý nhiều request hơn trên cùng một tài nguyên hệ thống.
+
+  Reactive và non-blocking nhìn chung thì không làm cho ứng dụng chạy nhanh hơn. Lợi ích mà nó được kỳ vọng là ứng dụng chịu tải được tốt hơn mà chỉ yêu cầu ít tài nguyên hơn.
+
+  ### Data Stream:
+  Mỗi Stream sẽ emit ra ba thứ là: giá trị trả về (return data), lỗi (error) hoặc một tín hiệu hoàn thành (completed signal) nếu trong trường hợp ta không quan tâm tới giá trị trả về. Và cũng giống như Stream API trong Java 8, reactive stream sẽ không làm gì (không hoạt động) cho tới khi ta subscribe (lắng nghe) chúng. Hãy luôn ghi nhớ rằng: Không có gì xảy ra cho đến khi subscribe.
+  
   </details>
 
 </details>
