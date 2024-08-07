@@ -1,7 +1,7 @@
 # Ghi chú cho bản thân:
 
 <details>
-<summary><span style="font-size: 25px; font-weight: 600">Java Reactive Programming</span></summary>
+<summary><strong>Java Reactive Programming</strong></summary>
 
 - <details>
   <summary>
@@ -158,9 +158,11 @@
     ```
 
     Sự khác biệt ở đây là gì?
-
+    
     1. Code dễ đọc hơn trước đó.
-    2. Dễ dàng thấy return type của method bây giờ không còn là `User` nữa mà được bọc trong một class `Mono<User>`.
+    2. Dễ dàng thấy return type của method bây giờ không còn là `User` nữa mà được bọc trong một class `Mono<User>`. Việc bọc đối tượng User này trong một lớp `Mono` sẽ cho phép controller return mà **không bị block thread**.
+
+    Reactive programming trong Spring WebFlux sử dụng non-blocking I/O và một mô hình lập trình bất đồng bộ để xử lý các yêu cầu. Điều này có nghĩa là khi một yêu cầu đến và yêu cầu dữ liệu (ví dụ: từ cơ sở dữ liệu), hệ thống sẽ không block thread để chờ dữ liệu đó. Thay vào đó, thread sẽ được giải phóng để làm việc khác, và khi dữ liệu sẵn sàng, một thread khác sẽ xử lý phần tiếp theo của pipeline.
     </details>
 
  ### Lưu ý về Reactive Programming:
@@ -225,7 +227,7 @@
 </details>
 
 <details>
-<summary><span style="font-size: 25px; font-weight: 600">Project Reactor</span></summary>
+<summary><strong>Project Reactor</strong></summary>
 
 Trong hệ sinh thái của JVM để đạt được reactive programming, một dự án (project) đã được ra đời, đó chính là Project Reactor và hạt nhân (core) của project chính là reactor-core. Nó cung cấp cho chúng ta những bộ thư viện để giúp lập trình viên dễ dàng thao tác và xử lý Data Stream trong Reactive.
 
@@ -289,10 +291,10 @@ Trong hệ sinh thái của JVM để đạt được reactive programming, mộ
     ints.subscribe(i -> System.out.println(i), //(3)
       error -> System.err.println("Error: " + error)); //(4)
     ```
-    >(1) Tạo một Stream Flux có 4 phần tử từ 1-> 6
-    >(2) Map lại Stream hiện tại ra một Steam mới mà chỉ được phép có 3 phần tử từ 1->3 nếu lớn hơn sẽ throw ra một Exception
-    >(3) Print ra dữ liệu output của Stream mới được tạo
-    >(4) sử dụng consumer là error để kết thúc Stream và out-put ra lỗi nếu có
+    >- (1) Tạo một Stream Flux có 4 phần tử từ 1-> 6
+    >- (2) Map lại Stream hiện tại ra một Steam mới mà chỉ được phép có 3 phần tử từ 1->3 nếu lớn hơn sẽ throw ra một Exception
+    >- (3) Print ra dữ liệu output của Stream mới được tạo
+    >- (4) sử dụng consumer là error để kết thúc Stream và out-put ra lỗi nếu có
     Output:
     ```java
     1
@@ -308,10 +310,10 @@ Trong hệ sinh thái của JVM để đạt được reactive programming, mộ
       error -> System.err.println("Error " + error), //(3)
       () -> System.out.println("Done")); (4)
     ```
-    >(1) Tạo một Stream Flux có 4 phần tử từ 1-> 4
-    >(2) Print ra dữ liệu output của Stream
-    >(3) Sử dụng consumer là error để completed Stream và out-put ra lỗi nếu có
-    >(4) Sử dụng consumer là () để completed Stream và out-put ra event complete
+    >- (1) Tạo một Stream Flux có 4 phần tử từ 1-> 4
+    >- (2) Print ra dữ liệu output của Stream
+    >- (3) Sử dụng consumer là error để completed Stream và out-put ra lỗi nếu có
+    >- (4) Sử dụng consumer là () để completed Stream và out-put ra event complete
     Output:
     ```java
     1
@@ -343,4 +345,33 @@ Trong hệ sinh thái của JVM để đạt được reactive programming, mộ
     ```
     Stream sẽ ngay lập tức bị cancel ngay sau khi nó được Subscribe
   </details>
+</details>
+
+<details>
+<summary><strong>Ứng dụng</strong></summary>
+
+#### Block một Flux
+Để collect một `Flux<Integer>` thành một `List<Intetger>`, ta cần phải **block** nó, cách tiếp cận đơn giản nhất là sử dụng `Flux#toStream()`, hàm này sẽ **block thread** vì ta phải đợi cho Flux này `emmit` **toàn bộ dữ liệu**, sau đó mới tiến hành convert nó sang `Stream`, rồi sang `List`.
+```java
+var flux = Flux.range(1, 10).delayElements(Duration.ofSeconds(1)) // add delay
+var list = flux.toStream().toList(); // Hàm này sẽ khiến thread bị block 10s
+System.out.println(list); // sau 10s hàm này mới được chạy
+System.out.println(list.size());
+```
+Output:
+```java
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+10
+```
+#### Block một Mono
+Để collect một `Mono<Integer>` thành một số **Integer**, ta cần phải **block** nó bằng hàm `Mono#block()`.
+```java
+var mono = Mono.just(42).delayElement(Duration.ofSeconds(1)); // add delay
+var x = mono.block(); // hàm này sẽ khiến thread bị block 1s
+System.out.println(x); // hàm này 1s sau mới được chạy
+```
+Output:
+```
+42
+```
 </details>
