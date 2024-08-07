@@ -1,7 +1,7 @@
 # Ghi chú cho bản thân:
 
 <details>
-    <summary><span style="font-size: 25px; font-weight: 600">Java Reactive Programming</span></summary>
+<summary><span style="font-size: 25px; font-weight: 600">Java Reactive Programming</span></summary>
 
 - <details>
   <summary>
@@ -163,58 +163,184 @@
     2. Dễ dàng thấy return type của method bây giờ không còn là `User` nữa mà được bọc trong một class `Mono<User>`.
     </details>
 
-  </details>
+ ### Lưu ý về Reactive Programming:
+ Khi nói về **Reactive Programming**:
 
-- <details>
-  <summary>
-  <strong>Cách hoạt động</strong>
-  </summary>
+ - Thay đổi cách chúng ta nghĩ về **flow**.
+ - Thay đổi cách chúng ta nghĩ về **data**.
+ - Tương thích Java thông qua `Flow` interface từ Java 9.
+ - Không phù hợp với các dự án nhỏ.
 
-  Khi nói về **Reactive Programming**:
+ Để sử dụng Reactive, chúng ta cần có hiểu biết về **Collection Stream**.
 
-  - Thay đổi cách chúng ta nghĩ về **flow**.
-  - Thay đổi cách chúng ta nghĩ về **data**.
-  - Tương thích Java thông qua `Flow` interface từ Java 9.
+ > **Java Stream Refresh**:
+ > - Là một chuỗi các data.
+ > - Chúng ta tập trung vào tính toán.
+ > - Không quan tâm đến cách mà dữ liệu được lưu trữ trong một stream.
+ > - Internal Iteration, chúng ta không chủ động thực hiện loop qua data.
+ > - Một số operator phổ biến trong Stream: `map`, `filter`, `flatMap`, `findFirst`, ...
 
-  Lưu ý là: **Reactive Programming** không phù hợp với các dự án nhỏ.
-
-  Để sử dụng Reactive, chúng ta cần có hiểu biết về **Collection Stream**.
-
-  > **Java Stream Refresh**:
-  > - Là một chuỗi các data.
-  > - Chúng ta tập trung vào tính toán.
-  > - Không quan tâm đến cách mà dữ liệu được lưu trữ trong một stream.
-  > - Internal Iteration, chúng ta không chủ động thực hiện loop qua data.
-  > - Một số operator phổ biến trong Stream: `map`, `filter`, `flatMap`, `findFirst`, ...
-
-  ### Ý tưởng nền tảng:
-  Có thể nói, Reactive chính là sự kết hợp của hai Design Pattern nổi tiếng khác là _Iterator Pattern_ và _Observer Pattern_:
-  - Với Iterator Pattern ta có đoạn code như sau: 
+ ### Ý tưởng nền tảng:
+ Có thể nói, Reactive chính là sự kết hợp của hai Design Pattern nổi tiếng khác là _Iterator Pattern_ và _Observer Pattern_:
+ - Với Iterator Pattern ta có đoạn code như sau: 
     ```java
       myList.forEach(element -> System.out.println(element))
     ```
-  - Với Observer Pattern ta có đoạn code như sau:
+ - Với Observer Pattern ta có đoạn code như sau:
     ```java
       eventChannel.addObserver(event -> System.out.println(event))
     ```
-  - Điểm khác biệt ở đây chỉ là **bên nào control** việc push data? Đối với *Iterator* thì đó là chính chúng ta, còn đối với *Observer* thì đó là Event hay Publisher.
-  - Reactive là một "nỗ lực" để kết hợp hai hàm trên, một thứ gì đó tương tự thế này:
+ - Điểm khác biệt ở đây chỉ là **bên nào control** việc push data? Đối với *Iterator* thì đó là chính chúng ta, còn đối với *Observer* thì đó là Event hay Publisher.
+ - Reactive là một "nỗ lực" để kết hợp hai hàm trên, một thứ gì đó tương tự thế này:
     ```java
       eventChannel
         .forEach(event -> event != null)
         .addOserver(event -> System.out.println(event))
     ```
 
-  ### Khái niệm:
-  Có thể giới thiệu ngắn ngọn Reactive = Asynchronous + Non-Blocking I/O (NIO), có nghĩa là một chương trình được gọi là Reactive nó sẽ đảm bảo được 2 yếu tố là Asynchronous (xử lý bất đồng bộ) và Non-Blocking I/O.
+ ### Khái niệm:
+ Có thể giới thiệu ngắn ngọn Reactive = Asynchronous + Non-Blocking I/O (NIO), có nghĩa là một chương trình được gọi là Reactive nó sẽ đảm bảo được 2 yếu tố là Asynchronous (xử lý bất đồng bộ) và Non-Blocking I/O.
 
-  Bằng cách viết những đoạn mã asynchronous và non-blocking, chương trình sẽ cho phép switch qua các tách vụ khác mà đang sử dụng cùng một I/O resource, và có thể quay lại sử lý tiếp khi tác vụ đó hoàn thành. Do đó với reactive programing chương trình có thể sử lý nhiều request hơn trên cùng một tài nguyên hệ thống.
+ Bằng cách viết những đoạn mã asynchronous và non-blocking, chương trình sẽ cho phép switch qua các tách vụ khác mà đang sử dụng cùng một I/O resource, và có thể quay lại sử lý tiếp khi tác vụ đó hoàn thành. Do đó với reactive programing chương trình có thể sử lý nhiều request hơn trên cùng một tài nguyên hệ thống.
 
-  Reactive và non-blocking nhìn chung thì không làm cho ứng dụng chạy nhanh hơn. Lợi ích mà nó được kỳ vọng là ứng dụng chịu tải được tốt hơn mà chỉ yêu cầu ít tài nguyên hơn.
+ Reactive và non-blocking nhìn chung thì không làm cho ứng dụng chạy nhanh hơn. Lợi ích mà nó được kỳ vọng là ứng dụng chịu tải được tốt hơn mà chỉ yêu cầu ít tài nguyên hơn.
 
-  ### Data Stream:
-  Mỗi Stream sẽ emit ra ba thứ là: giá trị trả về (return data), lỗi (error) hoặc một tín hiệu hoàn thành (completed signal) nếu trong trường hợp ta không quan tâm tới giá trị trả về. Và cũng giống như Stream API trong Java 8, reactive stream sẽ không làm gì (không hoạt động) cho tới khi ta subscribe (lắng nghe) chúng. Hãy luôn ghi nhớ rằng: Không có gì xảy ra cho đến khi subscribe.
+ ### Data Stream:
+ Mỗi Stream sẽ emit ra ba thứ là: giá trị trả về (`return data`), lỗi (`error`) hoặc một tín hiệu hoàn thành (`completed signal`) nếu trong trường hợp ta không quan tâm tới giá trị trả về. Và cũng giống như Stream API trong Java 8, reactive stream sẽ không làm gì (không hoạt động) cho tới khi ta subscribe (lắng nghe) chúng. Hãy luôn ghi nhớ rằng: Không có gì xảy ra cho đến khi subscribe.
+
+ Với mỗi loại emit, Stream sẽ định nghĩa từng function để xử lý, một function để hứng `return data` , một function khác xử lý `error` , và một function nữa để nhận `completed signal`. Việc lắng nghe Stream được gọi là **Subscribe**, các function được gọi là **Observers** , và **Subject** được quan sát ở đây là một Stream.
+
+ Đặc điểm của mỗi Stream đó là Immutability (bất biến), muốn xử lý hoặc thay đổi dữ liệu trong Steam ta luôn phải tạo một Stream mới từ Stream gốc bằng các function như `filter`, `map`, `reduce`
+
+ Ngoài ra với Reactive chúng ta cũng có thể gộp nhiều Stream thành một bằng các function như `merge`, `concat` hay `zip`
+
+ ![images](images/1_pUwd-zd-p-nsgncT9VtVxw.webp)
   
+ ### Event Loop:
+ Event Loop thực tế là một vòng lặp vô tận, để lắng nghe và xử lý những event từ event queue một cách tuần tự, và sẽ trả về ngay lập tức sau khi nó đăng ký một call back tương ứng với event đó. Call back sẽ được kích hoạt (trigger) khi dữ liệu được trả về từ một resource (DB, file hay network call) hay từ một error đã xảy ra.
+
+ ![images](images/1_HL0OUQZDd7dTowKgC1Tlhg.webp)
+  
+ Event loop thông thường sẽ được chạy trên duy nhất 1 thread, tuy nhiên để sử dụng hiệu quả số lượng CPU Core những Servlet containers hỗ trợ Reactive như Netty sẽ quản lý Event Loop thông qua một Event Loop Group, mỗi Event Loop sẽ chạy trên 1 thread trên từng CPU Core riêng biệt, và số lượng Event Loop sẽ không được nhiều hơn số CPU Cores hiện có của nền tảng phần cứng nó đang chạy.
+</details>
+
+<details>
+<summary><span style="font-size: 25px; font-weight: 600">Project Reactor</span></summary>
+
+Trong hệ sinh thái của JVM để đạt được reactive programming, một dự án (project) đã được ra đời, đó chính là Project Reactor và hạt nhân (core) của project chính là reactor-core. Nó cung cấp cho chúng ta những bộ thư viện để giúp lập trình viên dễ dàng thao tác và xử lý Data Stream trong Reactive.
+
+Đặc điểm chính của Reactor đó là cung cấp hai loại kiểu dữ liệu (data type) của luồng dữ liệu (Publisher) đó là **Flux** và **Mono**.
+
+- <details>
+    <summary><strong>Flux</strong></summary>
+
+    Là một Stream có thể phát ra **0..n** phần tử, có thể hình dung nó là một List dữ liệu. Ví dụ tạo đơn giản:
+    ```java
+      Flux<Integer> just = Flux.just(1,2,3,4);
+    ```
+    Và cũng giống như khái niệm về Reactive, có 3 tín hiệu mà Flux emit ra để Subscribe có thể nhận được đó là **onNext()** để hứng return data, **onComplete()** để nhận tín hiệu Stream hoàn thành và **onError()** để nhận giá trị lỗi trả về.
+    ![images](images/1_XgAROAi1ygGZZ6CPs6WWtQ.webp)
   </details>
 
+- <details>
+    <summary><strong>Mono</strong></summary>
+
+    Là một Stream có thể phát ra **0..1** phần tử. Nó hoạt động gần giống như Flux, chỉ là bị giới hạn không quá một phần tử hoặc không có phần tử nào (rỗng) . Ví dụ:
+    ```java
+      Mono<String> just = Mono.just("ABC"); // Mono với 1 phần tử
+      Mono<Void> just = Mono.empty(); // Mono với 0 phần tử (rỗng)
+    ```
+    Cũng giống như Flux, Mono cung cấp 3 function **onNext()**, **onComplete()** và **onError()** để Subscribe thao tác với dữ liệu được trả về.
+
+    Mono cũng có thể truyển đổi thành một Flux, ví dụ 2 hoặc nhiều Mono có thể gộp thành một Flux bằng cách sử dụng function **concatWith()**, ví dụ `Mono#concatWith(Publisher)` sẽ trả về một Flux. Hay sử dụng `Mono#then(Mono)` để trả về một Mono khác với mục đích kết thúc một Stream mà không quan tâm tới dữ liệu của Mono gốc. Điểm khác nhau giữa `Mono#then` và `Mono#map` đó là `then` hoạt động dựa trên tính hiệu `onComplete` mặc dù Mono gốc có thể empty, trong khi map hay `flatmap` chỉ hoạt động dựa trên tín hiệu `onNext` , có nghĩa là chỉ hoạt động khi Mono gốc có dữ liệu trả về (not empty).
+    ![images](images/1_WJvkUizS7HLzlN8L-jpsSA.webp)
+  </details>
+
+- <details>
+    <summary><strong>Subscribe</strong></summary>
+
+    Như đã nói bên trên rằng **“không có gì xảy ra cho đến khi subscribe”**, các Stream như Mono hay Flux sẽ không hành động gì cả cho tới khi nó được Observer hay Subcriber (lắng nghe). Do vậy trong Reactor có cung cấp một function **subscribe()** để thực hiện lắng nghe Stream.
+    Ví dụ để subcribe một Flux với basic method không có đối số (arguments)
+    ```java
+    Flux<Integer> ints = Flux.range(1, 3); //Tạo một Flux với 3 phần tử từ 1->3
+    ints.subscribe(); // Thực hiện lắng nghe trên Flux vừa tạo
+    ```
+    Với ví dụ trên thì sẽ không có out-put nào tạo ra, để có thể bắt (catch) được các out-put thì ta sẽ truyền một đối số là `Consumer` vào **subscribe()** ví dụ:
+    ```java
+    Flux<Integer> ints = Flux.range(1, 3); 
+    ints.subscribe(i -> System.out.println(i)); // subcribe Flux và in ra dữ liệu trả về của nó
+    ```
+    Output:
+    ```java
+    1
+    2
+    3
+    ```
+    #### Error Event
+    Một lỗi có thể được sử lý ngay trong subcribe (error handler) như ví dụ sau:
+    ```java
+    Flux<Integer> ints = Flux.range(1, 6) //(1)
+      .map(i -> { // (2)
+        if (i <= 3) {
+           return i;
+        }
+        throw new RuntimeException("Got to 4"); 
+      });
+    ints.subscribe(i -> System.out.println(i), //(3)
+      error -> System.err.println("Error: " + error)); //(4)
+    ```
+    >(1) Tạo một Stream Flux có 4 phần tử từ 1-> 6
+    >(2) Map lại Stream hiện tại ra một Steam mới mà chỉ được phép có 3 phần tử từ 1->3 nếu lớn hơn sẽ throw ra một Exception
+    >(3) Print ra dữ liệu output của Stream mới được tạo
+    >(4) sử dụng consumer là error để kết thúc Stream và out-put ra lỗi nếu có
+    Output:
+    ```java
+    1
+    2
+    3
+    Error: java.lang.RuntimeException: Got to 4
+    ```
+    #### Completed Event
+    Nếu có một `error` được `throw` ra thì Stream sẽ dừng lại (completed) ngay lập tức. Nếu không có lỗi xảy ra thì ta có thể tạo một event completed khi Stream kết thúc như ví dụ:
+    ```java
+    Flux<Integer> ints = Flux.range(1, 4); //(1)
+    ints.subscribe(i -> System.out.println(i), //(2)
+      error -> System.err.println("Error " + error), //(3)
+      () -> System.out.println("Done")); (4)
+    ```
+    >(1) Tạo một Stream Flux có 4 phần tử từ 1-> 4
+    >(2) Print ra dữ liệu output của Stream
+    >(3) Sử dụng consumer là error để completed Stream và out-put ra lỗi nếu có
+    >(4) Sử dụng consumer là () để completed Stream và out-put ra event complete
+    Output:
+    ```java
+    1
+    2
+    3
+    4
+    Done
+    ```
+    Subscribe có thể yêu cầu một hành động nào đó, ví dụ như yêu cầu số lượng dữ liệu được emit ra trước khi Steam được complete bằng cách sử dụng `sub` , ví dụ:
+    ```java
+    Flux<Integer> ints = Flux.range(1, 4);
+    ints.subscribe(i -> System.out.println(i),
+      error -> System.err.println("Error " + error),
+      () -> System.out.println("Done"),
+      sub -> sub.request(10));
+    ```
+    Stream trên sẽ bị treo (hangs) vĩnh viễn (không bao giờ completed) trừ khi Stream được cancel, bởi vì Subscribe đã yêu cầu chỉ completed cho tới khi nhận được đủ 10 phần tử.
+    Output: Event “Done” sẽ không bao giờ được output ra.
+    ```java
+    1
+    2
+    3
+    4
+    ```
+    #### Cancel Event
+    Function Subscribe trả về một kiểu dữ liệu là `Disposable` và `Disposable Interface` có cung cấp một method là **dispose()** để giúp một Stream có thể bị hủy bỏ (cancel) ví dụ:
+    ```java
+    Flux.just(1,2,3).subscribe().dispose();
+    ```
+    Stream sẽ ngay lập tức bị cancel ngay sau khi nó được Subscribe
+  </details>
 </details>
