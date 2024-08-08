@@ -390,5 +390,44 @@ public Mono<User> getUserDetails(@PathVariable String userId) {
   // đổ thông tin vào user rồi return
 }
 ```
-**Operator Functions** cho phép chúng ta chain nhiều thao tác `Mono` và `Flux` với nhau thông qua các hàm như `filter`, `map`, ... Các Operator này sẽ chỉ chạy **sau khi event được resolved**. Việc này giống như chúng ta đang "set up trước một kịch bản reactive" dành cho `Mono` và `Flux` thay vì phải **chờ đợi chúng**. 
+**Operator Functions** cho phép chúng ta chain nhiều thao tác `Mono` và `Flux` với nhau thông qua các hàm như `filter`, `map`, ... Các Operator này sẽ chỉ chạy **sau khi event được resolved**. Việc này giống như chúng ta đang "set up trước một kịch bản reactive" dành cho `Mono` và `Flux` thay vì phải **chờ đợi chúng**.
+
+### Cách Reactive thao tác với thread
+#### Schedulers 
+Được sử dụng để chỉ định các thread hoặc pool thread cho các thao tác reactive. Một số schedulers phổ biến:
+- **Schedulers.parallel()**: Sử dụng một pool các thread để thực hiện các tác vụ tính toán.
+- **Schedulers.boundedElastic()**: Được thiết kế cho các tác vụ blocking, như truy vấn cơ sở dữ liệu hoặc gọi API bên ngoài.
+- **Schedulers.single()**: Sử dụng một thread đơn để thực hiện các tác vụ.
+- **Schedulers.immediate()**: Thực hiện các tác vụ trên thread hiện tại (thường là thread chính).
+
+Để chỉ định thread thủ công, ta sử dụng hàm **publishOn** để thay đổi scheduler cho các toán tử sau nó trong chuỗi xử lý hoặc hàm **subscribeOn** để thay đổi scheduler cho toàn bộ chuỗi từ điểm bắt đầu.
+
+#### Trường hợp sử dụng
+
+Trường Hợp Không Chỉ Định Scheduler:
+```java
+Flux<Integer> flux = Flux.just(1, 2, 3)
+    .map(num -> doBlockStuff(num)); // Blocking operation
+
+flux.subscribe(num -> System.out.println(num)); // Runs on main thread
+
+System.out.println("End"); // Will print after the blocking operations
+```
+Kết quả: **main thread** bị block bởi **doBlockStuff**.
+
+Trường Hợp Chỉ Định Scheduler:
+```java
+Flux<Integer> flux = Flux.just(1, 2, 3)
+    .publishOn(Schedulers.boundedElastic()) // Switch to boundedElastic scheduler
+    .map(num -> doBlockStuff(num)); // Blocking operation
+
+flux.subscribe(num -> System.out.println(num));
+
+System.out.println("End"); // Will print immediately
+```
+Kết quả: Các tác vụ blocking chạy trên thread của **boundedElastic scheduler**, **không block** main thread.
+
+Các Tình Huống Cần Sử Dụng Scheduler:
+1. **Tác vụ blocking**: Sử dụng `publishOn(Schedulers.boundedElastic())` hoặc `subscribeOn(Schedulers.boundedElastic())` để chuyển tác vụ blocking sang một thread pool khác.
+2. **Tác vụ tính toán**: Sử dụng `Schedulers.parallel()` cho các tác vụ yêu cầu tính toán cao.
 </details>
