@@ -374,4 +374,21 @@ Output:
 ```
 42
 ```
+
+### Operator - Reactive all the way
+**Block** một Flux hoặc Mono về cơ bản là đi ngược lại với mục tiêu sử dụng Reactive, bởi vì mục đích của Reactive là để chúng ta hạn chế block thread.
+Chúng ta sẽ muốn "Reactive" trong mọi trường hợp và tránh **block**.
+Nếu bắt buộc phải **block** một tác vụ gì đó, chúng ta sẽ muốn các tác vụ còn lại Reactive.
+Lấy ví dụ với HTTP Request, khi request đến server, nó cần phải **block**, và từ lúc đó mọi thứ còn lại phải **Reactive**
+Ví dụ:
+```java
+@GetMapping("/users/{userId}")
+public Mono<User> getUserDetails(@PathVariable String userId) {
+  var user = userService.fetchUserMono(userId)
+  // check xem user có active không?
+  // fetch user details
+  // đổ thông tin vào user rồi return
+}
+```
+**Operator Functions** cho phép chúng ta chain nhiều thao tác `Mono` và `Flux` với nhau thông qua các hàm như `filter`, `map`, ... Các Operator này sẽ chỉ chạy **sau khi event được resolved**. Việc này giống như chúng ta đang "set up trước một kịch bản reactive" dành cho `Mono` và `Flux` thay vì phải **chờ đợi chúng**. 
 </details>
