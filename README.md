@@ -392,6 +392,11 @@ public Mono<User> getUserDetails(@PathVariable String userId) {
 ```
 **Operator Functions** cho phép chúng ta chain nhiều thao tác `Mono` và `Flux` với nhau thông qua các hàm như `filter`, `map`, ... Các Operator này sẽ chỉ chạy **sau khi event được resolved**. Việc này giống như chúng ta đang "set up trước một kịch bản reactive" dành cho `Mono` và `Flux` thay vì phải **chờ đợi chúng**.
 
+</details>
+
+<details>
+<summary><strong>Nguyên lí hoạt động</strong></summary>
+
 ### Cách Reactive thao tác với thread
 #### Schedulers 
 Được sử dụng để chỉ định các thread hoặc pool thread cho các thao tác reactive. Một số schedulers phổ biến:
@@ -430,4 +435,22 @@ Kết quả: Các tác vụ blocking chạy trên thread của **boundedElastic 
 Các Tình Huống Cần Sử Dụng Scheduler:
 1. **Tác vụ blocking**: Sử dụng `publishOn(Schedulers.boundedElastic())` hoặc `subscribeOn(Schedulers.boundedElastic())` để chuyển tác vụ blocking sang một thread pool khác.
 2. **Tác vụ tính toán**: Sử dụng `Schedulers.parallel()` cho các tác vụ yêu cầu tính toán cao.
+
+### I/O non-blocking
+#### Reactive Programming vs I/O non-blocking
+Reactive programming sử dụng non-blocking I/O để xử lý các tác vụ I/O như đọc/ghi file hoặc gửi/nhận dữ liệu qua mạng. Trong non-blocking I/O, các cuộc gọi I/O không làm block thread. Thay vào đó, chúng đăng ký một callback để được thông báo khi tác vụ hoàn thành. Điều này cho phép thread xử lý các công việc khác trong khi chờ đợi I/O hoàn thành.
+
+Trong khi đó, đối với mô hình blocking I/O truyền thống, mỗi cuộc gọi I/O sẽ block thread cho đến khi tác vụ hoàn thành. Điều này có nghĩa là nếu chúng ta có nhiều cuộc gọi I/O đang chờ đợi, ta sẽ cần nhiều thread để xử lý chúng. Điều này dẫn đến vấn đề về tài nguyên, vì mỗi thread tiêu tốn một lượng tài nguyên hệ thống nhất định (như bộ nhớ).
+#### Cách hoạt động của I/O non-blocking
+>ChatGPT generated
+1. **Khởi tạo I/O**: Khi thread yêu cầu một tác vụ I/O (như đọc hoặc ghi), nó gửi yêu cầu này tới hệ điều hành hoặc thư viện I/O không đồng bộ.
+
+2. **Hệ điều hành và Phần cứng**: Hệ điều hành và phần cứng có khả năng xử lý tác vụ I/O mà không cần sự can thiệp của thread. Điều này được thực hiện bằng cách sử dụng các cơ chế như:
+
+    - **DMA (Direct Memory Access)**: Cho phép thiết bị I/O truy cập trực tiếp vào bộ nhớ hệ thống mà không cần sự can thiệp của CPU.
+    - **Interrupts**: Khi một tác vụ I/O hoàn thành hoặc dữ liệu đã sẵn sàng, thiết bị I/O sẽ gửi một tín hiệu ngắt (interrupt) đến CPU để thông báo rằng tác vụ đã hoàn thành.
+    - **Tiếp tục làm việc khác**: Trong khi hệ điều hành và phần cứng xử lý I/O, thread có thể tiếp tục thực hiện các công việc khác. Nó không bị block vì hệ điều hành sẽ quản lý tác vụ I/O trong nền.
+
+3. **Nhận thông báo hoàn thành**: Khi tác vụ I/O hoàn thành, hệ điều hành hoặc thư viện I/O sẽ sử dụng cơ chế callback, promise, hoặc sự kiện để thông báo cho ứng dụng. Ứng dụng có thể xử lý kết quả của I/O trong callback hoặc sự kiện này.
+
 </details>
